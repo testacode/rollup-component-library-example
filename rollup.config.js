@@ -60,7 +60,8 @@ export default {
         })],
       preserveModules: true,
       sourcemap: 'hidden',
-      sourcemapExcludeSources: true
+      sourcemapExcludeSources: true,
+      globals: GLOBALS
     }
   ],
   context: 'this',
