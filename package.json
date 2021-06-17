@@ -1,8 +1,6 @@
 {
   "name": "rollup-react-component-lib",
   "version": "1.0.0",
-  "module": "lib/esm/index.js",
-  "main": "lib/cjs/index.js",
   "dependencies": {
     "@babel/runtime": "^7.14.6"
   },
