@@ -19,7 +19,7 @@ const PLUGINS = [
     browser: true,
     resolveOnly: [
       /^(?!react$)/,
-      /^(?!react-dom$)/,
+      /^(?!styled-components)/,
       /^(?!prop-types)/,
     ]
   }),
