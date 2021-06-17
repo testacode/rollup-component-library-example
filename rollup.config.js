@@ -65,5 +65,5 @@ export default {
   ],
   context: 'this',
   plugins: PLUGINS,
-  external: ['react', 'styled-components', 'core-js', 'prop-types'].concat(/@babel\/runtime/)
+  external: ['react', 'styled-components', 'prop-types'].concat(/@babel\/runtime/)
 };
