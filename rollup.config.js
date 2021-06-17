@@ -1,34 +1,69 @@
 import resolve from '@rollup/plugin-node-resolve';
-import commonjs from '@rollup/plugin-commonjs';
-import pkg from './package.json';
+import { babel } from '@rollup/plugin-babel';
+import clear from 'rollup-plugin-clear';
+import { terser } from 'rollup-plugin-terser';
+import { sizeSnapshot } from 'rollup-plugin-size-snapshot';
 
-export default [
-	// browser-friendly UMD build
-	{
-		input: 'src/main.js',
-		output: {
-			name: 'howLongUntilLunch',
-			file: pkg.browser,
-			format: 'umd'
-		},
-		plugins: [
-			resolve(), // so Rollup can find `ms`
-			commonjs() // so Rollup can convert `ms` to an ES module
-		]
-	},
+const GLOBALS = {
+  react: 'React',
+  'prop-types': 'PropTypes',
+  'styled-components': 'styled'
+};
 
-	// CommonJS (for Node) and ES module (for bundlers) build.
-	// (We could have three entries in the configuration array
-	// instead of two, but it's quicker to generate multiple
-	// builds from a single configuration where possible, using
-	// an array for the `output` option, where we can specify
-	// `file` and `format` for each target)
-	{
-		input: 'src/main.js',
-		external: ['ms'],
-		output: [
-			{ file: pkg.main, format: 'cjs' },
-			{ file: pkg.module, format: 'es' }
-		]
-	}
+const PLUGINS = [
+  babel({
+    babelHelpers: 'runtime',
+    exclude: 'node_modules/**'
+  }),
+  resolve({
+    browser: true,
+    resolveOnly: [
+      /^(?!react$)/,
+      /^(?!react-dom$)/,
+      /^(?!prop-types)/,
+    ]
+  }),
+  clear({
+    targets: ['dist']
+  })
 ];
+
+export default {
+  // Specify entries of your library, so that Rollup
+  // can figure out their inter-dependencies.
+  input: [
+    'src/index.js',
+    'src/Avatar',
+    'src/Button'
+  ],
+  output: [
+    {
+      // Not minified
+      dir: 'dist/esm',
+      exports: 'named',
+      format: 'es',
+      plugins: [sizeSnapshot()],
+      preserveModules: true,
+      sourcemap: true,
+      globals: GLOBALS
+    },
+    {
+      // Bundle into ESM for modern consumers.
+      // Only ESM build can currently be tree-shaken.
+      dir: 'dist/minified',
+      exports: 'named',
+      format: 'es',
+      plugins: [
+        // sizeSnapshot(),
+        terser({
+          module: true
+        })],
+      preserveModules: true,
+      sourcemap: 'hidden',
+      sourcemapExcludeSources: true
+    }
+  ],
+  context: 'this',
+  plugins: PLUGINS,
+  external: ['react', 'styled-components', 'core-js', 'prop-types'].concat(/@babel\/runtime/)
+};
